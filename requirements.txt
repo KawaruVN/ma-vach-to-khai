@@ -1,0 +1,5 @@
+streamlit
+selenium
+pytesseract
+Pillow
+opencv-python
