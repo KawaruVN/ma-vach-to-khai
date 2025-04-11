@@ -1,13 +1,9 @@
 import streamlit as st
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 import pytesseract
 import time
-import base64
 import os
 
 st.set_page_config(page_title="Tra cứu mã vạch Hải Quan", layout="centered")
@@ -24,19 +20,16 @@ with st.form("form"):
 
 if submitted:
     with st.spinner("Đang tra cứu, vui lòng chờ..."):
-        # Setup headless Chrome
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        driver = webdriver.Chrome(options=chrome_options)
+        # Setup undetected Chrome
+        options = uc.ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+
+        driver = uc.Chrome(options=options)
 
         try:
             driver.get("https://pus1.customs.gov.vn/BarcodeContainer/BarcodeContainer.aspx")
-
-            # CHỜ FORM LOAD ĐẦY ĐỦ
-            wait = WebDriverWait(driver, 10)
-            wait.until(EC.presence_of_element_located((By.ID, "ctl00_ContentPlaceHolder1_txtMaDN")))
 
             # Điền form
             driver.find_element(By.ID, "ctl00_ContentPlaceHolder1_txtMaDN").send_keys(ma_dn)
@@ -63,4 +56,5 @@ if submitted:
             st.error(f"❌ Lỗi: {e}")
         finally:
             driver.quit()
-            if os.path.exists("captcha.png"): os.remove("captcha.png")
+            if os.path.exists("captcha.png"):
+                os.remove("captcha.png")
